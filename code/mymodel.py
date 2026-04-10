@@ -1,14 +1,18 @@
 import numpy as np
 
 
-num_params = 10
+num_params = 3
 
 def prior_transform(us):
-    return us - 0.5
+    zs = -100.0 + 200.0*us
+    zs[0] = 0.0
+    ps = np.exp(zs)
+    ps /= np.sum(ps) 
+    return ps
 
 def log_likelihood(params):
-    return -num_params*0.5*np.log(2*np.pi*0.01**2)-0.5*np.sum((params/0.01)**2)
-
+    h = -np.sum(params*np.log(params))
+    return h
 
 def both(us):
     return log_likelihood(prior_transform(us))

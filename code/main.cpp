@@ -1,7 +1,8 @@
 #include <iostream>
 #include "DNest4/code/DNest4.h"
 #include "MyModel.h"
-#include <pybind11/embed.h>
+
+using namespace DNest4;
 
 int main(int argc, char** argv)
 {
@@ -11,8 +12,16 @@ int main(int argc, char** argv)
     pybind11::object num_params = pybind11::globals()["num_params"];
     MyModel::set_size(num_params.cast<int>());
 
-    DNest4::start<MyModel>(argc, argv);
+    // Run DNest4
+	CommandLineOptions options(argc, argv);
+	Sampler<MyModel> sampler = setup<MyModel>(options);
+	sampler.run();
 
+    // Get the best particle
+    auto best = sampler.get_best_ever_particle();
+    std::cout << "Best ever particle = ";
+    best.print(std::cout);
+    std::cout << std::endl;
 
     return 0;
 }
