@@ -7,8 +7,8 @@ num_params = 3
 
 xs = np.linspace(-10.0, 10.0, 1001)
 p0 = np.exp(-0.5*xs**2)/np.sqrt(2.0*np.pi)
-p1 = np.exp(-0.5*(xs - 0.1)**2)/np.sqrt(2.0*np.pi)
-p2 = np.exp(-0.5*(xs - 1.0)**2/2.0**2)/np.sqrt(2.0*np.pi*2.0**2)
+p1 = np.exp(-0.5*(xs - 1.0)**2)/np.sqrt(2.0*np.pi)
+p2 = np.exp(-0.5*(xs - 3.0)**2/2.0**2)/np.sqrt(2.0*np.pi*2.0**2)
 p_x_given_theta = [p0, p1, p2]
 h_x_given_theta = []
 for i in range(3):
@@ -32,12 +32,13 @@ def prior_transform(us):
 def log_likelihood(params):
     px = np.zeros(len(xs)) # Marginal
     h_conditional = 0.0
+    h_theta = -np.sum(params*np.log(params + 1E-300))
 
     for i in range(3):
         # Accumulate marginal
         px += params[i]*p_x_given_theta[i]
 
-        # Entropy of conditional
+        # Entropy of conditional i.e. H(X | theta)
         h_conditional += params[i]*h_x_given_theta[i]
 
     # Entropy of marginal
@@ -45,7 +46,8 @@ def log_likelihood(params):
 
     # Mutual information
     mi = hx - h_conditional
-    return mi
+
+    return h_conditional + h_theta
 
 def both(us):
     return log_likelihood(prior_transform(us))
